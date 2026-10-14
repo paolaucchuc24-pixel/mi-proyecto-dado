@@ -1,13 +1,44 @@
 import { useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 
-// Platform.select elige un valor segun el sistema operativo donde corre la app.
-const plataforma = Platform.select({ ios: 'iOS', android: 'Android', default: 'Web' });
+const plataforma = Platform.select({
+  ios: 'iOS',
+  android: 'Android',
+  default: 'Web',
+});
+
+// Caras de un dado tradicional
+const carasDado = {
+  1: '⚀',
+  2: '⚁',
+  3: '⚂',
+  4: '⚃',
+  5: '⚄',
+  6: '⚅',
+};
 
 export default function App() {
-  const [saludos, setSaludos] = useState(0);
+  const [resultado, setResultado] = useState(null);
+  const [lanzamientos, setLanzamientos] = useState(0);
+
+  const lanzarDado = () => {
+    const numero = Math.floor(Math.random() * 6) + 1;
+    setResultado(numero);
+    setLanzamientos((anterior) => anterior + 1);
+  };
+
+  const reiniciar = () => {
+    setResultado(null);
+    setLanzamientos(0);
+  };
 
   return (
     <SafeAreaProvider>
@@ -15,26 +46,52 @@ export default function App() {
         <StatusBar style="light" />
 
         <View style={styles.card}>
-          <Text style={styles.emoji}>👋</Text>
-          <Text style={styles.titulo}>¡Hola, Mundo!</Text>
+          <Text style={styles.emoji}>🎲</Text>
+
+          <Text style={styles.titulo}>Lanza el dado</Text>
+
           <Text style={styles.subtitulo}>
-            Mi primera app con React Native y Expo
+            Presiona el botón para obtener un número del 1 al 6.
           </Text>
-          <Text style={styles.plataforma}>
-            Ejecutándose en {plataforma}
+
+          <View style={styles.dado}>
+            <Text style={styles.cara}>
+              {resultado === null ? '🎲' : carasDado[resultado]}
+            </Text>
+          </View>
+
+          <Text style={styles.resultado}>
+            {resultado === null
+              ? '¡Listo para jugar!'
+              : `Resultado: ${resultado}`}
           </Text>
 
           <Pressable
-            style={({ pressed }) => [styles.boton, pressed && styles.botonPresionado]}
-            onPress={() => setSaludos(saludos + 1)}
+            style={({ pressed }) => [
+              styles.boton,
+              pressed && styles.botonPresionado,
+            ]}
+            onPress={lanzarDado}
           >
-            <Text style={styles.textoBoton}>Saludar</Text>
+            <Text style={styles.textoBoton}>🎲 Lanzar dado</Text>
           </Pressable>
 
           <Text style={styles.contador}>
-            {saludos === 0
-              ? 'Todavía no saludas a nadie'
-              : `Has saludado ${saludos} ${saludos === 1 ? 'vez' : 'veces'}`}
+            Lanzamientos realizados: {lanzamientos}
+          </Text>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.botonReiniciar,
+              pressed && styles.botonPresionado,
+            ]}
+            onPress={reiniciar}
+          >
+            <Text style={styles.textoReiniciar}>Reiniciar</Text>
+          </Pressable>
+
+          <Text style={styles.plataforma}>
+            Ejecutándose en {plataforma}
           </Text>
         </View>
       </SafeAreaView>
@@ -50,53 +107,104 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 24,
   },
+
   card: {
     width: '100%',
     maxWidth: 420,
     backgroundColor: '#151F33',
     borderRadius: 24,
-    paddingVertical: 40,
+    paddingVertical: 32,
     paddingHorizontal: 24,
     alignItems: 'center',
-    gap: 12,
+    gap: 14,
   },
+
   emoji: {
-    fontSize: 56,
+    fontSize: 42,
   },
+
   titulo: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '700',
     color: '#FFFFFF',
-  },
-  subtitulo: {
-    fontSize: 16,
-    color: '#9AA6BF',
     textAlign: 'center',
   },
-  plataforma: {
-    fontSize: 13,
-    color: '#4F8DFD',
-    fontWeight: '600',
+
+  subtitulo: {
+    fontSize: 15,
+    color: '#9AA6BF',
+    textAlign: 'center',
+    lineHeight: 22,
   },
+
+  dado: {
+    width: 150,
+    height: 150,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+
+  cara: {
+    fontSize: 100,
+    color: '#151F33',
+    textAlign: 'center',
+  },
+
+  resultado: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginVertical: 4,
+  },
+
   boton: {
-    marginTop: 16,
+    width: '100%',
     backgroundColor: '#4F8DFD',
-    paddingVertical: 14,
-    paddingHorizontal: 32,
-    borderRadius: 999,
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    marginTop: 8,
   },
+
   botonPresionado: {
-    backgroundColor: '#3C6FD1',
+    opacity: 0.8,
     transform: [{ scale: 0.97 }],
   },
+
   textoBoton: {
     color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
   },
+
   contador: {
-    marginTop: 4,
     fontSize: 14,
     color: '#9AA6BF',
+    textAlign: 'center',
+    marginTop: 8,
+  },
+
+  botonReiniciar: {
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    backgroundColor: '#26344D',
+  },
+
+  textoReiniciar: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  plataforma: {
+    fontSize: 12,
+    color: '#4F8DFD',
+    fontWeight: '600',
+    marginTop: 6,
   },
 });
